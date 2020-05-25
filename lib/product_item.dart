@@ -1,23 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class Product {
-  final String id;
-  final String desc;
-  final String name;
-  final double price;
-  final String imageUrl;
-  bool isFavorite;
-
-  Product({
-    @required this.id,
-    @required this.desc,
-    @required this.name,
-    @required this.price,
-    @required this.imageUrl,
-    this.isFavorite = false,
-  });
-}
+import 'providers/product.dart';
+import 'screens/product_detail_screen.dart';
 
 Widget iconCreate(Function function, Icon icon) {
   return Container(
@@ -26,14 +11,15 @@ Widget iconCreate(Function function, Icon icon) {
       borderRadius: BorderRadius.circular(25),
       border: Border.all(color: Colors.black87, width: 2),
       color: Colors.white54,
-      
     ),
     child: CircleAvatar(
       radius: 25,
       backgroundColor: Colors.white54,
       child: IconButton(
         icon: icon,
-        onPressed: () {},
+        onPressed: () {
+          function();
+        },
         color: Colors.black87,
       ),
     ),
@@ -41,21 +27,29 @@ Widget iconCreate(Function function, Icon icon) {
 }
 
 class ProductItem extends StatelessWidget {
-  final Product product;
-  ProductItem(this.product);
   @override
   Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
-        child: Image.network(
-          product.imageUrl,
-          fit: BoxFit.cover,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
+                arguments: product.id);
+          },
+          child: Image.network(
+            product.imageUrl,
+            fit: BoxFit.cover,
+          ),
         ),
         footer: GridTileBar(
           title: Container(),
-          trailing: iconCreate(null, Icon(Icons.shopping_basket)),
-          leading: iconCreate(null, Icon(Icons.favorite)),
+          trailing: iconCreate(null, Icon(Icons.add_shopping_cart)),
+          leading: iconCreate(
+            product.toggleFavorite,
+            Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
+          ),
         ),
         header: Container(
           margin: EdgeInsets.only(top: 5),

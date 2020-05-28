@@ -4,12 +4,19 @@ import 'package:shop_app/models/cart_item.dart';
 import 'package:shop_app/providers/cart.dart';
 
 class CardItem extends StatelessWidget {
-  final CartItem product;
-  const CardItem(this.product);
+  final String id;
+  final double price;
+  final String name;
+  final int quantity;
+  final String deleteId;
+
+  const CardItem(
+      {this.id, this.price, this.name, this.quantity, this.deleteId});
+
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(product.id),
+      key: ValueKey(id),
       background: Container(
         color: Colors.redAccent,
         child: Icon(
@@ -22,8 +29,8 @@ class CardItem extends StatelessWidget {
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        Provider.of<Cart>(context,listen: false).removeProduct(product.id);
-        //TODO Fix the mistake with updating the cart, think about the idea how to remove just one quantity
+        Provider.of<Cart>(context, listen: false).removeProduct(deleteId);
+        //TODO Fix the mistake with updating the cart (FIXED) , think about the idea how to remove just one quantity
       },
       child: Card(
         margin: EdgeInsets.symmetric(
@@ -34,15 +41,17 @@ class CardItem extends StatelessWidget {
           padding: EdgeInsets.all(10),
           child: ListTile(
             leading: CircleAvatar(
-                radius: 25,
-                child: FittedBox(
-                    child: Padding(
+              radius: 25,
+              child: FittedBox(
+                child: Padding(
                   padding: const EdgeInsets.all(5.0),
-                  child: Text('\$${product.price}'),
-                ))),
-            title: Text(product.name),
-            subtitle: Text('Total: ${(product.price * product.quantity)}\$'),
-            trailing: Text('${product.quantity}'),
+                  child: Text('\$$price'),
+                ),
+              ),
+            ),
+            title: Text(name),
+            subtitle: Text('Total: ${(price * quantity)}\$'),
+            trailing: Text('$quantity'),
           ),
         ),
       ),

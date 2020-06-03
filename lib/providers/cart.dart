@@ -54,9 +54,9 @@ class Cart with ChangeNotifier {
   }
 
   void removeProduct(String productId) {
-    /*var i = _products.values.firstWhere((element) => element.id == productId);
-    if (i.quantity != 1) {
-      print('Przed: ${i.quantity}');
+    var x=_products.entries.firstWhere((element) => element.key == productId);
+    if (x.value.quantity != 1) {
+      print('Przed: ${x.value.quantity}');
       _products.update(
         productId,
         (existingCartProduct) => CartItem(
@@ -66,11 +66,10 @@ class Cart with ChangeNotifier {
           price: existingCartProduct.price,
         ),
       );
-      i = _products.values.firstWhere((element) => element.id == productId);
-      print('Po: ${i.quantity}');
-    } else {*/
+      print('Po: ${x.value.quantity}');
+    } else {
       _products.remove(productId);
-    //}
+    }
     notifyListeners();
   }
 }

@@ -45,30 +45,34 @@ class TotalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Padding(
-        padding: EdgeInsets.all(8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text('Total:', style: TextStyle(fontSize: 20)),
-            Spacer(),
-            Chip(
-                label: Text(
-                  '${cartDetails.totalCost}\$',
-                  style: TextStyle(color: Colors.white),
+    return Consumer<Cart>(
+      builder: (context, cart, child) {
+        return Card(
+          margin: EdgeInsets.all(10),
+          child: Padding(
+            padding: EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text('Total:', style: TextStyle(fontSize: 20)),
+                Spacer(),
+                Chip(
+                    label: Text(
+                      '${cartDetails.totalCost.toStringAsFixed(2)}\$',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Theme.of(context).primaryColor),
+                SizedBox(width: 10),
+                IconButton(
+                  icon: Icon(Icons.payment),
+                  onPressed: () {},
+                  color: Colors.black87,
                 ),
-                backgroundColor: Theme.of(context).primaryColor),
-            SizedBox(width: 10),
-            IconButton(
-              icon: Icon(Icons.payment),
-              onPressed: () {},
-              color: Colors.black87,
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/models/cart_item.dart';
+
 import 'package:shop_app/providers/cart.dart';
 
 class CardItem extends StatelessWidget {
@@ -16,7 +16,7 @@ class CardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(id),
+      key: UniqueKey(),
       background: Container(
         color: Colors.redAccent,
         child: Icon(
@@ -30,7 +30,6 @@ class CardItem extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeProduct(deleteId);
-        //TODO Fix the mistake with updating the cart (FIXED) , think about the idea how to remove just one quantity
       },
       child: Card(
         margin: EdgeInsets.symmetric(
@@ -50,7 +49,7 @@ class CardItem extends StatelessWidget {
               ),
             ),
             title: Text(name),
-            subtitle: Text('Total: ${(price * quantity)}\$'),
+            subtitle: Text('Total: ${(price * quantity).toStringAsFixed(2)}\$'),
             trailing: Text('$quantity'),
           ),
         ),

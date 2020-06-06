@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/models/card_item.dart';
 import 'package:shop_app/providers/cart.dart';
+import 'package:shop_app/providers/orders.dart';
 
 class CartScreen extends StatelessWidget {
   static const String routeName = '/cart';
@@ -65,7 +66,10 @@ class TotalCard extends StatelessWidget {
                 SizedBox(width: 10),
                 IconButton(
                   icon: Icon(Icons.payment),
-                  onPressed: () {},
+                  onPressed: () {
+                    Provider.of<Orders>(context,listen: false).addOrder(cartDetails.products.values.toList(), cartDetails.totalCost);
+                    cart.clearCart();
+                  },
                   color: Colors.black87,
                 ),
               ],

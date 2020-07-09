@@ -5,7 +5,10 @@ import 'package:shop_app/providers/cart.dart';
 import 'providers/product.dart';
 import 'screens/product_detail_screen.dart';
 
-Widget iconCreate(Function function, Icon icon) {
+Widget iconCreate(
+    Function function, Icon icon, String type, BuildContext context) {
+  final cart = Provider.of<Cart>(context);
+  final product = Provider.of<Product>(context);
   return Container(
     width: 48,
     decoration: BoxDecoration(
@@ -19,8 +22,21 @@ Widget iconCreate(Function function, Icon icon) {
       child: IconButton(
         icon: icon,
         onPressed: () {
-          if(function!=null)
-            function();
+          if (function != null) function();
+          if (type == "cart"){
+            Scaffold.of(context).hideCurrentSnackBar();
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Item added to cart!"),
+                action: SnackBarAction(
+                  label: "UNDO",
+                  onPressed: () {
+                    cart.removeProduct(product.id);
+                  },
+                ),
+              ),
+            );
+          }
         },
         color: Colors.black87,
       ),
@@ -49,11 +65,16 @@ class ProductItem extends StatelessWidget {
         footer: GridTileBar(
           title: Container(),
           trailing: iconCreate(
-              () => cart.addProduct(product.id, product.price, product.name),
-              Icon(Icons.add_shopping_cart)),
+            () => cart.addProduct(product.id, product.price, product.name),
+            Icon(Icons.add_shopping_cart),
+            "cart",
+            context,
+          ),
           leading: iconCreate(
             product.toggleFavorite,
             Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
+            "fav",
+            context,
           ),
         ),
         header: Container(

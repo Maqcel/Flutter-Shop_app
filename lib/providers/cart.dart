@@ -54,6 +54,7 @@ class Cart with ChangeNotifier {
   }
 
   void removeProduct(String productId) {
+    if(!_products.containsKey(productId)) return;
     var x=_products.entries.firstWhere((element) => element.key == productId);
     if (x.value.quantity != 1) {
       //print('Przed: ${x.value.quantity}');

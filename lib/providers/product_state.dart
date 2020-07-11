@@ -70,12 +70,31 @@ class ProductState with ChangeNotifier {
     return _products.where((element) => element.isFavorite).toList();
   }
 
-  void addProduct() {
-    //_products.add(value);
+  void addProduct(Product product) {
+    Product newProduct = new Product(
+      id: DateTime.now().toString(),
+      desc: product.desc,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+    );
+    _products.add(newProduct);
     notifyListeners();
   }
 
   Product findById(String id) {
     return _products.firstWhere((element) => element.id == id);
+  }
+
+  void updateProduct(String id, Product updated) {
+    final productIndex = _products.indexWhere((element) => element.id == id);
+    _products[productIndex] = updated;
+    notifyListeners();
+  }
+
+  void deleteProduct(String id) {
+    final productIndex = _products.indexWhere((element) => element.id == id);
+    _products.removeAt(productIndex);
+    notifyListeners();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 import 'product.dart';
+import 'dart:convert';
 
 class ProductState with ChangeNotifier {
   List<Product> _products = [
@@ -71,15 +72,38 @@ class ProductState with ChangeNotifier {
   }
 
   void addProduct(Product product) {
-    Product newProduct = new Product(
-      id: DateTime.now().toString(),
-      desc: product.desc,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-    );
-    _products.add(newProduct);
-    notifyListeners();
+    const url =
+        'https://fir-learning-project-18dfb.firebaseio.com/products.json'; //* Added .json its Firebase thing
+
+    http
+        .post(
+      url,
+      body: json.encode(
+        {
+          'name': product.name,
+          'description': product.desc,
+          'imageUrl': product.imageUrl,
+          'price': product.price,
+          'isFavorite': product.isFavorite,
+        },
+      ),
+    )
+        .then(
+      //! it's triggered after post method ends
+      (value) {
+        //! value is a response from the web serwer
+        //print(json.decode(value.body));
+        Product newProduct = new Product(
+          id: json.decode(value.body)['name'],
+          desc: product.desc,
+          name: product.name,
+          price: product.price,
+          imageUrl: product.imageUrl,
+        );
+        _products.add(newProduct);
+        notifyListeners();
+      },
+    ); //* data need to be converted into json, json.encode can convert maps to json
   }
 
   Product findById(String id) {

@@ -10,6 +10,14 @@ import 'package:shop_app/screens/product_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/screens/user_products_screen.dart';
 
+//! Https Requests Cheat sheet
+
+//? GET - Fetch data
+//? POST - Store data
+//? PATCH - Update data
+//? PUT - Replace data
+//? DELETE - Delete data
+
 void main() {
   runApp(MyApp());
 }
@@ -22,7 +30,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => ProductState()),
         ChangeNotifierProvider(create: (ctx) => Cart()),
         ChangeNotifierProvider(create: (ctx) => Orders()),
-
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

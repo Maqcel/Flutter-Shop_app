@@ -32,7 +32,8 @@ class UserProductItem extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
-                Provider.of<ProductState>(context, listen: false).deleteProduct(id);
+                Provider.of<ProductState>(context, listen: false)
+                    .deleteProduct(id);
               },
               color: Theme.of(context).errorColor,
             ),
@@ -45,6 +46,11 @@ class UserProductItem extends StatelessWidget {
 
 class UserProductScreen extends StatelessWidget {
   static const routeName = '/user_products';
+
+  Future<void> _onRefresh(BuildContext context) async {
+    await Provider.of<ProductState>(context, listen: false).setProduct();
+  }
+
   @override
   Widget build(BuildContext context) {
     final productData = Provider.of<ProductState>(context);
@@ -62,19 +68,22 @@ class UserProductScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: Padding(
-          padding: EdgeInsets.all(8),
-          child: ListView.builder(
-            itemCount: productData.products.length,
-            itemBuilder: (_, i) => Column(
-              children: <Widget>[
-                UserProductItem(
-                  productData.products[i].id,
-                  productData.products[i].name,
-                  productData.products[i].imageUrl,
-                ),
-                Divider(),
-              ],
+        body: RefreshIndicator(
+          onRefresh: () => _onRefresh(context),
+          child: Padding(
+            padding: EdgeInsets.all(8),
+            child: ListView.builder(
+              itemCount: productData.products.length,
+              itemBuilder: (_, i) => Column(
+                children: <Widget>[
+                  UserProductItem(
+                    productData.products[i].id,
+                    productData.products[i].name,
+                    productData.products[i].imageUrl,
+                  ),
+                  Divider(),
+                ],
+              ),
             ),
           ),
         ),

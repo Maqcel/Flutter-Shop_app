@@ -35,18 +35,38 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     if (!_form.currentState.validate()) return;
     _form.currentState.save();
     if (_editedProduct.id != null) {
-      Provider.of<ProductState>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
+      await Provider.of<ProductState>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct)
+          .catchError(
+        (error) {
+          return showDialog<Null>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('An error occurred!'),
+              content: Text(
+                  'Something went wrong, most likely no internet connection'),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Go back'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
       Navigator.of(context).pop();
     } else {
       setState(() {
         _isLoading = true;
       });
-      Provider.of<ProductState>(context, listen: false)
+      await Provider.of<ProductState>(context, listen: false)
           .addProduct(_editedProduct)
           .catchError(
         (error) {
@@ -54,7 +74,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
             context: context,
             builder: (context) => AlertDialog(
               title: Text('An error occurred!'),
-              content: Text('Something went wrong'),
+              content: Text(
+                  'Something went wrong, most likely no internet connection'),
               actions: <Widget>[
                 FlatButton(
                   onPressed: () {

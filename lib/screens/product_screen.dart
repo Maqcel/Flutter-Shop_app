@@ -27,6 +27,26 @@ class _ProductScreenState extends State<ProductScreen> {
           },
         );
       },
+    ).catchError(
+      (onError) {
+        return showDialog<Null>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Text('An error occurred!'),
+            content: Text(
+                'Something went wrong, most likely no internet connection'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacementNamed('/');
+                },
+                child: Text('Try again!'),
+              ),
+            ],
+          ),
+        );
+      },
     );
     super.initState();
   }

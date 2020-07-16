@@ -48,7 +48,30 @@ class UserProductScreen extends StatelessWidget {
   static const routeName = '/user_products';
 
   Future<void> _onRefresh(BuildContext context) async {
-    await Provider.of<ProductState>(context, listen: false).setProduct();
+    await Provider.of<ProductState>(context, listen: false)
+        .setProduct()
+        .catchError(
+      (onError) {
+        return showDialog<Null>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Text('Couldn\'t refresh!'),
+            content: Text(
+                'Something went wrong, most likely no internet connection'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushReplacementNamed(UserProductScreen.routeName);
+                },
+                child: Text('Go back!'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override

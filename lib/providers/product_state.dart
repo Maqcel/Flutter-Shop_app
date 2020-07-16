@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'product.dart';
@@ -17,7 +20,7 @@ class ProductState with ChangeNotifier {
 
   Future<void> setProduct() async {
     try {
-      final response = await http.get(url);
+      final response = await http.get(url).timeout(Duration(seconds: 10));
       //print(response.body.toString());
       final decodeData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> temporary = [];
@@ -36,25 +39,34 @@ class ProductState with ChangeNotifier {
       );
       _products = temporary;
       notifyListeners();
-    } catch (error) {
-      throw error;
+    } on TimeoutException catch (e) {
+      print('Timeout Error: $e');
+      throw e;
+    } on SocketException catch (e) {
+      print('Socket Error: $e');
+      throw e;
+    } on Error catch (e) {
+      print('General Error: $e');
+      throw e;
     }
   }
 
   Future<void> addProduct(Product product) async {
     try {
-      final response = await http.post(
-        url,
-        body: json.encode(
-          {
-            'name': product.name,
-            'description': product.desc,
-            'imageUrl': product.imageUrl,
-            'price': product.price,
-            'isFavorite': product.isFavorite,
-          }, //* data need to be converted into json, json.encode can convert maps to json
-        ),
-      );
+      final response = await http
+          .post(
+            url,
+            body: json.encode(
+              {
+                'name': product.name,
+                'description': product.desc,
+                'imageUrl': product.imageUrl,
+                'price': product.price,
+                'isFavorite': product.isFavorite,
+              }, //* data need to be converted into json, json.encode can convert maps to json
+            ),
+          )
+          .timeout(Duration(seconds: 10));
       //print(json.decode(response.body));
       Product newProduct = new Product(
         id: json.decode(response.body)['name'],
@@ -65,9 +77,15 @@ class ProductState with ChangeNotifier {
       );
       _products.add(newProduct);
       notifyListeners();
-    } catch (error) {
-      print(error);
-      throw error;
+    } on TimeoutException catch (e) {
+      print('Timeout Error: $e');
+      throw e;
+    } on SocketException catch (e) {
+      print('Socket Error: $e');
+      throw e;
+    } on Error catch (e) {
+      print('General Error: $e');
+      throw e;
     }
   }
 
@@ -75,8 +93,34 @@ class ProductState with ChangeNotifier {
     return _products.firstWhere((element) => element.id == id);
   }
 
-  void updateProduct(String id, Product updated) {
+  Future<void> updateProduct(String id, Product updated) async {
     final productIndex = _products.indexWhere((element) => element.id == id);
+    final movieURL =
+        'https://fir-learning-project-18dfb.firebaseio.com/products/$id.json';
+    try {
+      await http
+          .patch(
+            movieURL,
+            body: json.encode(
+              {
+                'name': updated.name,
+                'description': updated.desc,
+                'imageUrl': updated.imageUrl,
+                'price': updated.price,
+              },
+            ),
+          )
+          .timeout(Duration(seconds: 10));
+    } on TimeoutException catch (e) {
+      print('Timeout Error: $e');
+      throw e;
+    } on SocketException catch (e) {
+      print('Socket Error: $e');
+      throw e;
+    } on Error catch (e) {
+      print('General Error: $e');
+      throw e;
+    }
     _products[productIndex] = updated;
     notifyListeners();
   }

@@ -107,20 +107,22 @@ class ProductsGrid extends StatelessWidget {
     final productsData = Provider.of<ProductState>(context);
     final products =
         showFavorites ? productsData.favoriteProducts : productsData.products;
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 2 / 3,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-      ),
-      itemBuilder: (contex, i) => ChangeNotifierProvider.value(
-        value: products[
-            i], //! products are already existing value is better aproach here
-        child: ProductItem(),
-      ),
-      itemCount: products.length,
-      padding: const EdgeInsets.all(10.0),
-    );
+    return products.length == 0
+        ? Center(child: Text('Add some movies!'))
+        : GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 2 / 3,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemBuilder: (contex, i) => ChangeNotifierProvider.value(
+              value: products[
+                  i], //! products are already existing value is better aproach here
+              child: ProductItem(),
+            ),
+            itemCount: products.length,
+            padding: const EdgeInsets.all(10.0),
+          );
   }
 }

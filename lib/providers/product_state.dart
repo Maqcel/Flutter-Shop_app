@@ -23,6 +23,7 @@ class ProductState with ChangeNotifier {
       final response = await http.get(url).timeout(Duration(seconds: 10));
       //print(response.body.toString());
       final decodeData = json.decode(response.body) as Map<String, dynamic>;
+      if (decodeData == null) return;
       final List<Product> temporary = [];
       decodeData.forEach(
         (prodId, movie) {
@@ -125,7 +126,22 @@ class ProductState with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteProduct(String id) {
+  Future<void> deleteProduct(String id) async {
+    final movieURL =
+        'https://fir-learning-project-18dfb.firebaseio.com/products/$id.json';
+    try {
+      await http.delete(movieURL);
+    } on TimeoutException catch (e) {
+      print('Timeout Error: $e');
+      throw e;
+    } on SocketException catch (e) {
+      print('Socket Error: $e');
+      throw e;
+    } on Error catch (e) {
+      print('General Error: $e');
+      throw e;
+    }
+
     final productIndex = _products.indexWhere((element) => element.id == id);
     _products.removeAt(productIndex);
     notifyListeners();

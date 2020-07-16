@@ -33,7 +33,29 @@ class UserProductItem extends StatelessWidget {
               icon: Icon(Icons.delete),
               onPressed: () {
                 Provider.of<ProductState>(context, listen: false)
-                    .deleteProduct(id);
+                    .deleteProduct(id)
+                    .catchError(
+                  (onError) {
+                    return showDialog<Null>(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => AlertDialog(
+                        title: Text('Couldn\'t delete!'),
+                        content: Text(
+                            'Something went wrong, most likely no internet connection'),
+                        actions: <Widget>[
+                          FlatButton(
+                            onPressed: () {
+                              Navigator.of(context).pushReplacementNamed(
+                                  UserProductScreen.routeName);
+                            },
+                            child: Text('Go back!'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
               },
               color: Theme.of(context).errorColor,
             ),

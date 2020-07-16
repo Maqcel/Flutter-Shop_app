@@ -64,19 +64,61 @@ class TotalCard extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor),
                 SizedBox(width: 10),
-                IconButton(
-                  icon: Icon(Icons.payment),
-                  onPressed: () {
-                    Provider.of<Orders>(context,listen: false).addOrder(cartDetails.products.values.toList(), cartDetails.totalCost);
-                    cart.clearCart();
-                  },
-                  color: Colors.black87,
-                ),
+                OrderButton(cart),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  final Cart cart;
+  OrderButton(this.cart);
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  bool _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+    final cartDetails = Provider.of<Cart>(context);
+    return IconButton(
+      icon: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Icon(Icons.payment),
+      onPressed: (cartDetails.productsCount <= 0 || _isLoading == true)
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              await Provider.of<Orders>(context, listen: false)
+                  .addOrder(cartDetails.products.values.toList(),
+                      cartDetails.totalCost)
+                  .catchError(
+                (onError) {
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: Text('Placing order failed!'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                },
+              );
+              setState(() {
+                _isLoading = false;
+              });
+              widget.cart.clearCart();
+            },
+      color: Colors.black87,
     );
   }
 }

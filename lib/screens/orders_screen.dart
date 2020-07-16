@@ -6,10 +6,56 @@ import 'package:shop_app/orders_drawer.dart';
 import 'package:shop_app/providers/orders.dart';
 import 'dart:math';
 
-class OrdersScreen extends StatelessWidget {
+class OrdersScreen extends StatefulWidget {
   const OrdersScreen({Key key}) : super(key: key);
 
   static const routeName = '/orders';
+
+  @override
+  _OrdersScreenState createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  bool _isLoading = false;
+  @override
+  void initState() {
+    setState(
+      () {
+        _isLoading = true;
+      },
+    );
+    Provider.of<Orders>(context, listen: false).setOrders().then(
+      (value) {
+        setState(
+          () {
+            _isLoading = false;
+          },
+        );
+      },
+    ).catchError(
+      (onError) {
+        return showDialog<Null>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Text('An error occurred!'),
+            content: Text(
+                'Something went wrong, most likely no internet connection'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushReplacementNamed(OrdersScreen.routeName);
+                },
+                child: Text('Try again!'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,17 +65,25 @@ class OrdersScreen extends StatelessWidget {
         title: Text("Your orders!"),
       ),
       drawer: OrdersDrawer(),
-      body: ListView.builder(
-        itemCount: ordersDetails.orders.length,
-        itemBuilder: (ctx, i) => OrderCreator(order: ordersDetails.orders[i]),
-      ),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ordersDetails.orders.length == 0
+              ? Center(
+                  child: Text('Add some orders!'),
+                )
+              : ListView.builder(
+                  itemCount: ordersDetails.orders.length,
+                  itemBuilder: (ctx, i) =>
+                      OrderCreator(order: ordersDetails.orders[i]),
+                ),
     );
   }
 }
 
 class OrderCreator extends StatefulWidget {
   final OrderItem order;
-
   const OrderCreator({Key key, this.order}) : super(key: key);
 
   @override
@@ -63,8 +117,8 @@ class _OrderCreatorState extends State<OrderCreator> {
           ),
           if (_expanded)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-              height: min(widget.order.products.length * 30.0, 150),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              height: min(widget.order.products.length * 45.0, 120),
               child: ListView(
                 children: widget.order.products
                     .map((element) => ExpandedInfo(element))

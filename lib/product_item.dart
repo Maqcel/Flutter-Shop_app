@@ -23,7 +23,7 @@ Widget iconCreate(
         icon: icon,
         onPressed: () {
           if (function != null) function();
-          if (type == "cart"){
+          if (type == "cart") {
             Scaffold.of(context).hideCurrentSnackBar();
             Scaffold.of(context).showSnackBar(
               SnackBar(
@@ -47,6 +47,7 @@ Widget iconCreate(
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
     final product = Provider.of<Product>(context);
     final cart = Provider.of<Cart>(context);
     return ClipRRect(
@@ -71,7 +72,16 @@ class ProductItem extends StatelessWidget {
             context,
           ),
           leading: iconCreate(
-            product.toggleFavorite,
+            () => product.toggleFavorite().catchError(
+              (onError) {
+                scaffold.showSnackBar(
+                  SnackBar(
+                    content: Text('An error occured'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
             Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
             "fav",
             context,

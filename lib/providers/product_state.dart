@@ -34,6 +34,7 @@ class ProductState with ChangeNotifier {
               name: movie['name'],
               price: movie['price'],
               imageUrl: movie['imageUrl'],
+              isFavorite: movie['isFavorite'],
             ),
           );
         },
@@ -75,6 +76,7 @@ class ProductState with ChangeNotifier {
         name: product.name,
         price: product.price,
         imageUrl: product.imageUrl,
+        isFavorite: false,
       );
       _products.add(newProduct);
       notifyListeners();

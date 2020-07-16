@@ -22,8 +22,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
     'desc': '',
     'price': '',
   };
-  Product _editedProduct =
-      new Product(id: null, desc: '', name: '', price: 0, imageUrl: '0');
+  Product _editedProduct = new Product(
+      id: null, desc: '', name: '', price: 0, imageUrl: '0', isFavorite: false);
 
   @override
   void dispose() {

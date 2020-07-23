@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/providers/auth.dart';
 
 class CurvePainter extends CustomPainter {
   final bool isSignup;
@@ -131,7 +133,7 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState.validate()) {
       // Invalid!
       return;
@@ -145,7 +147,8 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!_isSignup) {
       // Log user in
     } else {
-      // Sign user up
+      Provider.of<Auth>(context, listen: false)
+          .signup(_authData['email'], _authData['password']);
     }
     setState(() {
       _isLoading = false;
@@ -154,6 +157,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(_isLoading);
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -210,6 +214,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       width: width * 0.7,
                       child: TextFormField(
+                        textInputAction: TextInputAction.next,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           contentPadding:
@@ -240,6 +245,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       width: width * 0.7,
                       child: TextFormField(
+                        textInputAction: _isSignup
+                            ? TextInputAction.next
+                            : TextInputAction.done,
                         textAlign: TextAlign.center,
                         obscureText: true,
                         decoration: InputDecoration(
@@ -317,7 +325,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                               FlatButton(
                                 child: Text(
-                                    '${_isSignup ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+                                    '${!_isSignup ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
                                 onPressed: toggleState,
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,

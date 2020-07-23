@@ -113,13 +113,43 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool _isSignup = false;
+  bool _isLoading = false;
+
+  final _passwordController = TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey();
+  Map<String, String> _authData = {
+    'email': '',
+    'password': '',
+  };
 
   void toggleState() {
     setState(
       () {
-        _isSignup = true;
+        _isSignup = !_isSignup;
       },
     );
+  }
+
+  void _submit() {
+    if (!_formKey.currentState.validate()) {
+      // Invalid!
+      return;
+    }
+    _formKey.currentState.save();
+    //print(_authData['email']);
+    //print(_authData['password']);
+    setState(() {
+      _isLoading = true;
+    });
+    if (!_isSignup) {
+      // Log user in
+    } else {
+      // Sign user up
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -165,118 +195,141 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           Positioned(
             top: height * 0.25,
-            child: AuthCard(),
+            child: Container(
+              height: height,
+              width: width,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      height: height * 0.055,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(height)),
+                        color: Colors.grey.withOpacity(0.2),
+                      ),
+                      width: width * 0.7,
+                      child: TextFormField(
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          contentPadding:
+                              EdgeInsets.only(bottom: height * 0.005),
+                          hintText: 'E-Mail',
+                          border: InputBorder.none,
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value.isEmpty || !value.contains('@')) {
+                            return 'Invalid email!';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _authData['email'] = value;
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    Container(
+                      height: height * 0.055,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(height)),
+                        color: Colors.grey.withOpacity(0.2),
+                      ),
+                      width: width * 0.7,
+                      child: TextFormField(
+                        textAlign: TextAlign.center,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          contentPadding:
+                              EdgeInsets.only(bottom: height * 0.005),
+                          hintText: 'Password',
+                          border: InputBorder.none,
+                        ),
+                        controller: _passwordController,
+                        validator: (value) {
+                          if (value.isEmpty || value.length < 5) {
+                            return 'Password is too short!';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _authData['password'] = value;
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    _isSignup
+                        ? Container(
+                            height: height * 0.055,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(height)),
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
+                            width: width * 0.7,
+                            child: TextFormField(
+                              obscureText: true,
+                              enabled: _isSignup,
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.only(bottom: height * 0.005),
+                                hintText: 'Confirm password',
+                                border: InputBorder.none,
+                              ),
+                              validator: _isSignup
+                                  ? (value) {
+                                      if (value != _passwordController.text ||
+                                          value.isEmpty) {
+                                        return 'Passwords do not match!';
+                                      }
+                                      return null;
+                                    }
+                                  : null,
+                            ),
+                          )
+                        : Container(),
+                    SizedBox(
+                      height: _isSignup
+                          ? height * 0.33 - height * 0.055
+                          : height * 0.33,
+                    ),
+                    _isLoading
+                        ? CircularProgressIndicator()
+                        : Column(
+                            children: <Widget>[
+                              Container(
+                                width: width * 0.55,
+                                child: RaisedButton(
+                                  color: Colors.blueAccent.withOpacity(0.7),
+                                  onPressed: _submit,
+                                  child:
+                                      Text('${_isSignup ? 'Signup' : 'Login'}'),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(height),
+                                  ),
+                                ),
+                              ),
+                              FlatButton(
+                                child: Text(
+                                    '${_isSignup ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+                                onPressed: toggleState,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ],
+                          )
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-enum Mode { Login, Signup }
-
-class AuthCard extends StatefulWidget {
-  AuthCard({Key key}) : super(key: key);
-
-  @override
-  _AuthCardState createState() => _AuthCardState();
-}
-
-class _AuthCardState extends State<AuthCard> {
-  final GlobalKey<FormState> _formKey = GlobalKey();
-  Map<String, String> _authData = {
-    'email': '',
-    'password': '',
-  };
-  Mode _authMode = Mode.Login;
-
-  bool _isLoading = false;
-  final _passwordController = TextEditingController();
-
-  void toggleAuthMode() {
-    if (_authMode == Mode.Login) {
-      setState(() {
-        _authMode = Mode.Signup;
-      });
-    } else {
-      setState(() {
-        _authMode = Mode.Login;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
-    final double height = MediaQuery.of(context).size.height;
-    return Container(
-      height: height,
-      width: width,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: height * 0.055,
-              padding: EdgeInsets.only(bottom: height * 0.005),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(height)),
-                color: Colors.grey.withOpacity(0.2),
-              ),
-              width: width * 0.7,
-              child: TextFormField(
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'E-Mail',
-                  border: InputBorder.none,
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-            ),
-            SizedBox(
-              height: height * 0.02,
-            ),
-            Container(
-              height: height * 0.055,
-              padding: EdgeInsets.only(bottom: height * 0.005),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(height)),
-                color: Colors.grey.withOpacity(0.2),
-              ),
-              width: width * 0.7,
-              child: TextFormField(
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  border: InputBorder.none,
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-            ),
-            SizedBox(
-              height: height * 0.02,
-            ),
-            _authMode == Mode.Signup
-                ? Container(
-                    height: height * 0.055,
-                    padding: EdgeInsets.only(bottom: height * 0.005),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(height)),
-                      color: Colors.grey.withOpacity(0.2),
-                    ),
-                    width: width * 0.7,
-                    child: TextFormField(
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: 'Confirm password',
-                        border: InputBorder.none,
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                  )
-                : Container(),
-          ],
-        ),
       ),
     );
   }
